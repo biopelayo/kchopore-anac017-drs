@@ -1,0 +1,28 @@
+/* K-CHOPORE flash talk — EpiLab green theme */
+:root {
+  --green: #1F6B3B;
+  --green2: #2E8B57;
+  --ink: #202020;
+}
+.reveal { font-family: "Arial", "Helvetica", sans-serif; color: var(--ink); }
+.reveal h1, .reveal h2 { color: var(--green); font-weight: 800; letter-spacing: -0.01em; }
+.reveal .slide-number, .reveal .footer { color: var(--green2); }
+.reveal h2 { border-bottom: 3px dashed var(--green); padding-bottom: .2em; }
+
+/* title slide */
+.reveal .title { color: var(--green); font-size: 2.6em; font-weight: 800; }
+.reveal .subtitle { color: var(--ink); font-weight: 600; }
+.reveal .author, .reveal .quarto-title-author-name { color: var(--ink); }
+.reveal .institute, .reveal .date { color: #555; font-size: .8em; }
+
+/* highlight box */
+.green-box {
+  background: #E9F3EC; border-left: 8px solid var(--green);
+  border-radius: 8px; padding: .6em .9em; margin-top: .5em; font-weight: 600;
+}
+.tinycap { color: #555; font-size: .55em; text-align: center; margin-top: .2em; }
+.whitetext { color: #fff; font-size: 1.25em; line-height: 1.7; text-align: center; }
+.whitetext strong { color: #fff; }
+
+.reveal img { border-radius: 6px; box-shadow: 0 1px 6px rgba(0,0,0,.12); }
+.reveal .columns { align-items: center; }
