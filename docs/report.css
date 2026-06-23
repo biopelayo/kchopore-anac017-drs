@@ -1,0 +1,12 @@
+/* K-CHOPORE report — clean, EpiLab green accents */
+:root { --green:#1F6B3B; --green2:#2E8B57; }
+body { font-family: "Arial","Helvetica",sans-serif; color:#202020; line-height:1.55; }
+h1,h2,h3 { color: var(--green); font-weight: 700; }
+h1 { border-bottom: 3px solid var(--green); padding-bottom:.2em; }
+h2 { border-bottom: 1px dashed var(--green2); padding-bottom:.15em; margin-top:1.6em; }
+a { color: var(--green2); }
+.quarto-title .subtitle { color:#333; font-weight:600; }
+figure img { border-radius:6px; box-shadow:0 1px 6px rgba(0,0,0,.10); }
+figcaption { color:#555; font-size:.9em; }
+#TOC, .sidebar { border-right:1px solid #e6efe9; }
+blockquote { border-left:5px solid var(--green); background:#E9F3EC; }
