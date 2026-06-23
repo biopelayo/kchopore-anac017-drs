@@ -1,0 +1,93 @@
+samples:
+- anac017-1_C_R1
+- anac017-1_C_R2
+- anac017-1_C_R3
+- anac017-1_AA_R1
+conditions:
+  anac017-1_C_R1: control
+  anac017-1_C_R2: control
+  anac017-1_C_R3: control
+  anac017-1_AA_R1: treatment
+samples_with_fast5: []
+input_files:
+  fastq_dir: data/raw/fastq
+  fast5_dir: data/raw/fast5
+  pod5_dir: data/raw/pod5
+  sequencing_summaries_dir: data/raw/summaries
+  fastq_files:
+  - data/raw/fastq/anac017-1_C_R1.fastq
+  - data/raw/fastq/anac017-1_C_R2.fastq
+  - data/raw/fastq/anac017-1_C_R3.fastq
+  - data/raw/fastq/anac017-1_AA_R1.fastq
+  sequencing_summaries: []
+  reference_genome: data/reference/genome/TAIR10_chr_all.fas.fasta
+  reference_genome_mmi: data/reference/genome/TAIR10_chr_all.fas.fasta.mmi
+  gtf_file: data/reference/annotations/AtRTDv2_QUASI_19April2016.gtf
+  bed_file: results/flair/flair.collapse.isoforms.bed
+  transcriptome_fasta: data/reference/transcriptome/transcriptome.fa
+  reads_manifest: data/raw/reads_manifest.tsv
+output:
+  path: results
+  logs: logs
+  basecalls_dir: results/basecalls
+  fastq_filtered_dir: results/fastq_filtered
+  mapped_dir: results/mapped
+  sorted_bam_dir: results/sorted_bam
+  qc_dir: results/quality_analysis
+  nanoplot_dir: results/nanoplot
+  nanocomp_dir: results/nanocomp
+  samtools_stats_dir: results/samtools_stats
+  flair_dir: results/flair
+  stringtie_dir: results/stringtie
+  bambu_dir: results/bambu
+  eligos2_dir: results/eligos
+  m6anet_dir: results/m6anet
+  xpore_dir: results/xpore
+  nanopolish_dir: results/nanopolish
+  deseq2_dir: results/deseq2
+  multiqc_dir: results/multiqc
+tools:
+  basecaller: dorado
+  guppy_config_file: /opt/ont-guppy-cpu/data/rna_r9.4.1_70bps_hac.cfg
+  bonito_model: rna004_130bps_hac@v5.0.0
+  dorado_model: rna004_130bps_hac@v5.0.0
+  dorado_path: /usr/local/bin/dorado
+  minimap2_preset: splice
+  minimap2_kmer_size: 14
+  minimap2_extra_flags: --secondary=no --MD
+  nanofilt_min_quality: 7
+  nanofilt_min_length: 200
+  nanofilt_max_length: 0
+  nanoplot_format: png
+  pycoqc_min_pass_qual: 7
+  flair_path: flair
+  flair_support: 3
+  flair_stringent: true
+  stringtie_path: stringtie
+  stringtie_min_cov: 2.5
+  stringtie_min_tpm: 1.0
+  eligos2_pval: 0.05
+  eligos2_oddR: 5
+  eligos2_esb: 0.2
+  m6anet_num_iterations: 1000
+  m6anet_num_processors: 4
+  xpore_min_reads: 10
+  nanopolish_path: nanopolish
+  deseq2_padj_threshold: 0.05
+  deseq2_lfc_threshold: 1.0
+params:
+  threads: 12
+  latency_wait: 60
+  run_basecalling: false
+  run_nanofilt: true
+  run_nanoplot: true
+  run_nanocomp: true
+  run_pycoqc: false
+  run_flair: true
+  run_stringtie: true
+  run_bambu: false
+  run_eligos2: false
+  run_m6anet: false
+  run_xpore: false
+  run_deseq2: false
+  run_multiqc: true

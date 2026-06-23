@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.snakemake/
+results/
+data/raw/
+*.bam
+*.bai
+*.bdg
+*.fastq
+*.fast5
+*.eventalign.txt*

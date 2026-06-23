@@ -1,0 +1,2 @@
+FROM kchopore-anac017-drs:latest
+RUN pip install --no-cache-dir gprofiler-official

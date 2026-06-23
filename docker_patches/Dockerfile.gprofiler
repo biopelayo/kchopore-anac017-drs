@@ -1,0 +1,3 @@
+FROM kchopore-anac017-drs:latest
+RUN apt-get update && apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev && rm -rf /var/lib/apt/lists/* && \
+    Rscript -e "install.packages(c(\"gprofiler2\",\"RColorBrewer\"), repos=\"https://cloud.r-project.org\")"
