@@ -1,0 +1,55 @@
+# K-CHOPORE env capture — server usuario2@156.35.42.17 — env: pycoqc_env
+# Captured 2026-06-25. ISOLATED pycoQC env (python 3.10.19, conda 25.9.1, linux-64).
+# This env is where the plotly==4.1.0 pin actually lives, kept apart from NanoPlot so the two
+# never share a process. pycoQC 2.5.2 + plotly 4.1.0 coexist cleanly here.
+#
+# CAVEAT: `pip freeze` in this env leaked to a different env's site-packages (it reported plotly 6.6.0
+# / multiqc 1.33), so it is NOT reproduced as authoritative. The conda list --export below is the
+# source of truth and correctly shows plotly=4.1.0 / pycoqc=2.5.2 / pysam=0.23.3 / numpy=2.2.6.
+
+##### conda list --export #####
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+# created-by: conda 25.9.1
+_libgcc_mutex=0.1=conda_forge
+_openmp_mutex=4.5=2_gnu
+bzip2=1.0.8=hda65f42_8
+ca-certificates=2025.10.5=hbd8a1cb_0
+h5py=3.15.1=pypi_0
+jinja2=3.1.6=pypi_0
+ld_impl_linux-64=2.44=h1aa0949_4
+libexpat=2.7.1=hecca717_0
+libffi=3.5.2=h9ec8514_0
+libgcc=15.2.0=h767d61c_7
+libgcc-ng=15.2.0=h69a702a_7
+libgomp=15.2.0=h767d61c_7
+liblzma=5.8.1=hb9d3cd8_2
+libnsl=2.0.1=hb9d3cd8_1
+libsqlite=3.50.4=h0c1763c_0
+libstdcxx=15.2.0=h8f9b012_7
+libuuid=2.41.2=he9a06e4_0
+libxcrypt=4.4.36=hd590300_1
+libzlib=1.3.1=hb9d3cd8_2
+markupsafe=3.0.3=pypi_0
+ncurses=6.5=h2d0b736_3
+numpy=2.2.6=pypi_0
+openssl=3.5.4=h26f9b46_0
+pandas=2.3.3=pypi_0
+pip=25.2=pyh8b19718_0
+plotly=4.1.0=pypi_0
+pycoqc=2.5.2=pypi_0
+pysam=0.23.3=pypi_0
+python=3.10.19=h3c07f61_2_cpython
+python-dateutil=2.9.0.post0=pypi_0
+pytz=2025.2=pypi_0
+readline=8.2=h8c095d6_2
+retrying=1.4.2=pypi_0
+scipy=1.15.3=pypi_0
+setuptools=80.9.0=pyhff2d567_0
+six=1.17.0=pypi_0
+tk=8.6.13=noxft_hd72426e_102
+tqdm=4.67.1=pypi_0
+tzdata=2025.2=pypi_0
+wheel=0.45.1=pyhd8ed1ab_1
+zstd=1.5.7=hb8e6e7a_2

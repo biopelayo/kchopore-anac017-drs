@@ -1,7 +1,7 @@
 ---
 title: "K-CHOPORE"
 subtitle: "A reproducible nanopore Direct RNA-seq pipeline<br>for the plant m6A epitranscriptome"
-author: "Pelayo G. de Lena Rodríguez · Chus Pascual · Luis Valledor"
+author: "Pelayo G. de Lena · Jesus Pascual · Mario F. Fraga · Luis Valledor"
 institute: "Plant Physiology & Systems Biology — Univ. Oviedo / FINBA"
 date: "1st EpiCrops Conference · Oviedo 2026"
 format:
@@ -78,8 +78,8 @@ m6A gained at **AOX1a** under Antimycin A
 
 ::: {.columns}
 ::: {.column width="55%"}
-- **175** transcripts respond to AA; **32** in an **ANAC017-dependent** way (interaction).
-- **~89%** of AA-gained m6A sites in WT are **ANAC017-dependent**.
+- **151** transcripts respond to AA; **19** in an **ANAC017-dependent** way (interaction).
+- **~86%** of AA-gained m6A sites in WT are **ANAC017-dependent**.
 - AA-responsive genes enriched in **stress / hypoxia** (e.g. *CYP81D8*).
 :::
 ::: {.column width="45%"}

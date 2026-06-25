@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 # GO/KEGG enrichment (g:Profiler) for the DESeq2 contrasts. Arabidopsis thaliana.
 suppressMessages({library(gprofiler2); library(ggplot2)})
+set.seed(42)
 OUT <- path.expand("~/deseq2/go"); dir.create(OUT, showWarnings=FALSE, recursive=TRUE)
 at <- function(tx) unique(na.omit(regmatches(tx, regexpr("AT[1-5CMG]G[0-9]{5}", tx, ignore.case=TRUE))))
 do_go <- function(csv, name){

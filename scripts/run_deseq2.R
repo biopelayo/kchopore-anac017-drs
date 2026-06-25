@@ -16,6 +16,7 @@ suppressPackageStartupMessages({
   library(DESeq2)
   library(ggplot2)
 })
+set.seed(42)
 
 # Parse command line arguments
 args <- commandArgs(trailingOnly = TRUE)

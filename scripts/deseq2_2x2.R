@@ -2,6 +2,7 @@
 # DESeq2 2x2 (genotype WT/anac017 x treatment C/AA) on transcript counts (idxstats).
 # Key term: genotype:treatment interaction = ANAC017-dependent response to Antimycin A.
 suppressMessages({library(DESeq2); library(ggplot2); library(pheatmap); library(RColorBrewer)})
+set.seed(42)
 IDX <- path.expand("~/deseq2/idxstats"); OUT <- path.expand("~/deseq2/out"); dir.create(OUT,recursive=TRUE,showWarnings=FALSE)
 samples <- c("WT_C_R1","WT_C_R2","WT_C_R3","WT_AA_R1","WT_AA_R2","WT_AA_R3",
              "anac017-1_C_R1","anac017-1_C_R2","anac017-1_C_R3",

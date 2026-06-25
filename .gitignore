@@ -9,3 +9,4 @@ data/raw/
 *.fastq
 *.fast5
 *.eventalign.txt*
+*.bak

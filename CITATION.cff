@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "If you use this pipeline, please cite it as below."
+title: "K-CHOPORE — anac017 Direct RNA-seq pipeline"
+abstract: >-
+  Reproducible Direct RNA nanopore (DRS) pipeline for the m6A epitranscriptome
+  and transcriptome of the mitochondrial retrograde response in Arabidopsis
+  thaliana (2x2 design: WT/anac017-1 x Control/Antimycin A). Follow-up study;
+  methods build on the K-CHOPORE pipeline.
+type: software
+authors:
+  - family-names: "González de Lena Rodríguez"
+    given-names: "Pelayo"
+    affiliation: "Cancer Epigenetics & Nanomedicine Lab (FINBA) / Systems Biology Lab, Universidad de Oviedo"
+  - family-names: "Pascual"
+    given-names: "Jesús"
+    affiliation: "Universidad de Oviedo"
+  - family-names: "Fernández Fraga"
+    given-names: "Mario"
+    affiliation: "Universidad de Oviedo"
+  - family-names: "Valledor"
+    given-names: "Luis"
+    affiliation: "Universidad de Oviedo"
+license: MIT
+repository-code: "https://github.com/pelayovic/kchopore-anac017-drs"  # TODO: confirm canonical repo URL
+# TODO (Pelayo): set `version` and `date-released` once a tagged release is cut.
+# TODO (Pelayo): add `doi` (Zenodo) on archival.
+# version: 0.0.0
+# date-released: 2026-01-01
+keywords:
+  - nanopore
+  - direct-RNA-seq
+  - m6A
+  - epitranscriptome
+  - Arabidopsis
+  - retrograde-signalling
+  - Snakemake

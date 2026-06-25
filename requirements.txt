@@ -2,46 +2,58 @@
 # K-CHOPORE Python Dependencies
 # ONT Direct RNA Sequencing Analysis Pipeline
 # =============================================================
-# NOTE: Tools installed separately in Dockerfile (NanoPlot, NanoComp,
+# Versions PINNED (==) to those captured from the working `kchopore` conda env
+# on the analysis server (usuario2@156.35.42.17), 2026-06-25.
+# Raw capture: envs/frozen/kchopore.txt
+#
+# NOTE: Tools installed separately in the Dockerfile (NanoPlot, NanoComp,
 # NanoFilt, m6anet, xpore, multiqc, flair-brookslab, pysam, pod5,
 # ont-fast5-api, pycoQC) are NOT duplicated here to avoid version conflicts.
 
 # Build tools (required for pybedtools compilation)
-setuptools>=69.0.0
-wheel
+setuptools==80.9.0
+wheel==0.45.1
+# Cython: build-only; not present in the captured runtime env, left unpinned
+# (pin once observed in a validated build to keep it deterministic).
 Cython
 
 # Core scientific computing
-numpy>=1.23.5
-pandas>=2.0.0
-scipy>=1.10.0
+numpy==2.3.4
+pandas==2.3.3
+scipy==1.16.3
 
 # BAM/SAM processing
-mappy>=2.24
+mappy==2.24
 
 # FAST5/HDF5 file handling
-h5py>=3.11.0
+h5py==3.15.1
 
 # Bed file manipulation
-pybedtools>=0.10.0
-ncls>=0.0.68
+pybedtools==0.12.0
+ncls==0.0.70
 
 # Visualization
-plotly>=4.1.0
+# plotly 6.3.1 is what the working env actually carries; NanoPlot 1.46.1 and
+# pycoQC 2.5.2 both coexist with it. The legacy plotly==4.1.0 only lives in the
+# isolated pycoqc_env (envs/frozen/pycoqc_env.txt), never sharing a process.
+plotly==6.3.1
 
 # Templating
-Jinja2>=3.1.4
-MarkupSafe>=2.1.5
+Jinja2==3.1.6
+MarkupSafe==3.0.3
 
 # Progress bars
-tqdm>=4.66.5
+tqdm==4.67.1
 
 # R-Python integration
-rpy2>=3.5.0
+# rpy2 is installed in the Docker image's pip stack, not in the captured conda
+# env, so no real version was observed here. Left unpinned; pin from a validated
+# image build (`pip show rpy2`) before publishing.
+rpy2
 
 # Utilities
-python-dateutil>=2.9.0
-pytz>=2024.1
-tzdata>=2024.1
-retrying>=1.3.4
-tabulate>=0.9.0
+python-dateutil==2.9.0.post0
+pytz==2025.2
+tzdata==2025.2
+retrying==1.4.2
+tabulate==0.9.0

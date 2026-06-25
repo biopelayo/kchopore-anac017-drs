@@ -12,9 +12,8 @@ Basecalling (Guppy) → splice/transcriptome mapping (minimap2) → QC (NanoPlot
 Snakefile                 workflow rules
 config/                   config_*.yml (the single control point)
 scripts/                  analysis + figure scripts (DESeq2, ELIGOS2/m6A, GO, setup)
-envs/                     conda environments
 Dockerfile                full software stack
-requirements.txt          python deps
+requirements.txt          python deps (installed in the image)
 METHODS_TOOLS.md          per-tool settings, filters and outputs (review sheet)
 RUN_CLI.md                step-by-step CLI runbook
 ```
@@ -30,6 +29,18 @@ Edit only `config/config_*.yml` (samples, conditions, data paths, `run_*` module
 ## Data
 Raw DRS data and intermediate signal files (FAST5/eventalign) are large and are **not** stored here; see `RUN_CLI.md` for mounting the lab NAS or fetching from a public repository (ENA/GEO).
 
+Raw DRS data: ENA PRJEBXXXXXX / GEO GSEXXXXXX (to be assigned).
+
 ## Author
 Pelayo González de Lena Rodríguez · Cancer Epigenetics & Nanomedicine Lab (FINBA) / Systems Biology Lab (Univ. Oviedo).
 Follow-up study; methods build on the K-CHOPORE pipeline.
+
+## License
+MIT — see [`LICENSE`](LICENSE). If you use this pipeline, please cite it via [`CITATION.cff`](CITATION.cff).
+
+## Environment / reproducibility
+Exact software versions from the working analysis environment are frozen in
+[`envs/frozen/`](envs/frozen/) (one file per conda env: `kchopore`, `m6anet`, `xpore`,
+`viz`, `pycoqc_env`). The primary pipeline env is specified in
+[`envs/environment.yml`](envs/environment.yml); the full software stack is built by the
+`Dockerfile`.

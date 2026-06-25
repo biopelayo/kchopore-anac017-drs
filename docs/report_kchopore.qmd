@@ -2,8 +2,10 @@
 title: "K-CHOPORE — Results Report"
 subtitle: "A reproducible nanopore Direct RNA-seq pipeline for the plant m6A epitranscriptome, applied to the ANAC017-dependent mitochondrial retrograde response in *Arabidopsis thaliana*"
 author:
-  - "Pelayo G. de Lena Rodríguez"
-  - "Chus Pascual · Luis Valledor"
+  - "Pelayo G. de Lena"
+  - "Jesus Pascual"
+  - "Mario F. Fraga"
+  - "Luis Valledor"
 date: "1st EpiCrops Conference · Oviedo 2026"
 abstract: |
   N6-methyladenosine (m6A) is the most abundant internal mRNA modification. Oxford Nanopore Direct RNA-seq (DRS) detects it on native transcripts, but reproducible, plant-ready workflows are scarce. We present **K-CHOPORE**, an end-to-end, containerised (Docker/FAIR) Snakemake pipeline from raw signal to m6A maps, differential expression and function. As a case study we profile the mitochondrial retrograde response of Arabidopsis (WT vs *anac017-1* × Control vs Antimycin A, 2×2, n=3). The pipeline recovers the canonical RRACH motif (validated against m6A-writer mutants), separates the design by expression, and reveals an ANAC017-dependent remodelling of the m6A epitranscriptome under mitochondrial stress.
@@ -45,7 +47,7 @@ Read quality and yield are consistent across the 12 libraries (NanoComp, Fig. 1)
 
 ## Expression captures the design
 
-PCA on variance-stabilised counts separates genotype (PC1) and treatment (PC2), with replicates clustering tightly (@fig-pca). Differential expression yields 175 transcripts responding to Antimycin A, 127 with a basal genotype effect, and **32 transcripts with an ANAC017-dependent response** (genotype×treatment interaction; @fig-volcano).
+PCA on variance-stabilised counts separates genotype (PC1) and treatment (PC2), with replicates clustering tightly (@fig-pca). Differential expression yields 151 transcripts responding to Antimycin A, 93 with a basal genotype effect, and **19 transcripts with an ANAC017-dependent response** (genotype×treatment interaction; @fig-volcano).
 
 ::: {layout-ncol=2}
 ![PCA, 2×2 design.](figs/pca.png){#fig-pca}
@@ -55,7 +57,7 @@ PCA on variance-stabilised counts separates genotype (PC1) and treatment (PC2), 
 
 ## The m6A epitranscriptome
 
-ELIGOS2 recovers the canonical **RRACH** motif in all conditions, re-centred on the modified adenosine (@fig-motif). After coverage normalisation, m6A density is comparable across conditions (276–352 sites per 1,000 tested adenosines), with *anac017-1* showing the highest basal rate (@fig-rate) — the raw counts alone would have been misleading due to depth differences.
+ELIGOS2 recovers the canonical **RRACH** motif in all conditions, re-centred on the modified adenosine (@fig-motif). After coverage normalisation, m6A density is comparable across conditions (93–120 sites per 1,000 tested adenosines), with *anac017-1* showing the highest basal rate (@fig-rate) — the raw counts alone would have been misleading due to depth differences.
 
 ::: {layout-ncol=2}
 ![m6A motif (RRACH) by condition.](figs/motif.png){#fig-motif}
@@ -63,15 +65,15 @@ ELIGOS2 recovers the canonical **RRACH** motif in all conditions, re-centred on 
 ![Coverage-normalised m6A rate.](figs/rate.png){#fig-rate}
 :::
 
-At the retrograde marker **AOX1a** (AT3G22370), m6A signal increases at the 3′ end under Antimycin A (@fig-aox1a). Across the genome, ~89% of AA-gained m6A sites in WT are not gained in *anac017-1*, i.e. **ANAC017-dependent**.
+At the retrograde marker **AOX1a** (AT3G22370), m6A signal increases at the 3′ end under Antimycin A (@fig-aox1a). Across the genome, ~86% of AA-gained m6A sites in WT are not gained in *anac017-1*, i.e. **ANAC017-dependent**.
 
 ![m6A signal along AOX1a in the four conditions.](figs/aox1a.png){#fig-aox1a width="80%"}
 
 ## Function
 
-ANAC017-dependent genes are enriched in response to stimulus / stress and hypoxia (e.g. *CYP81D8*), consistent with complex-III inhibition mimicking an energy/oxygen stress (@fig-go).
+The Antimycin-A-responsive genes (151 DE in WT) are enriched in response to hypoxia, oxidative stress and reactive oxygen species (clusterProfiler GO:BP; e.g. *CYP81D8*), consistent with complex-III inhibition mimicking an energy/oxygen stress (@fig-go). The 19 ANAC017-dependent interaction genes alone are too few for significant enrichment.
 
-![GO enrichment of ANAC017-dependent genes.](figs/go.png){#fig-go width="80%"}
+![clusterProfiler GO:BP enrichment of the AA-responsive genes.](figs/go.png){#fig-go width="80%"}
 
 # Discussion
 
