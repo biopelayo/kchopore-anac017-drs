@@ -11,7 +11,7 @@ This is a follow-up study. The contribution is the reproducible route and a reus
 
 ## The question
 
-Antimycin A blocks complex III of the mitochondrial electron transport chain, which triggers a burst of ROS and a retrograde signal to the nucleus. **ANAC017** is the transcription factor that relays it. The question here: does mitochondrial stress remodel the m6A epitranscriptome, and does that remodelling depend on ANAC017? We answer it on a clean 2×2 design and, along the way, package the whole analysis so it runs again with one command.
+Antimycin A blocks complex III of the mitochondrial electron transport chain, which triggers a burst of ROS and a retrograde signal to the nucleus. **ANAC017** is the transcription factor that relays it. The question here: does mitochondrial stress remodel the m6A epitranscriptome, and does that remodelling depend on ANAC017? We answer it on a clean 2×2 design and, along the way, package the whole analysis so it runs again with one command. For the biology behind the dataset, see [`docs/background.md`](docs/background.md).
 
 ## Headline results
 
