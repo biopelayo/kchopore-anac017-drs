@@ -1,9 +1,8 @@
 # =============================================================
 # K-CHOPORE Pipeline - Snakemake Workflow
 # =============================================================
-# Comprehensive pipeline for ONT Direct RNA Sequencing analysis
-# including basecalling, QC, alignment, isoform analysis,
-# epitranscriptomic modification detection, and differential expression.
+# ONT Direct RNA-seq workflow: basecalling, QC, alignment, isoform
+# analysis, m6A detection and differential expression.
 #
 # Created by Pelayo Gonzalez de Lena Rodriguez, MSc
 # FPI Severo Ochoa Fellow
@@ -16,7 +15,7 @@
 import os
 
 # Load configuration
-configfile: "config/config.yml"
+configfile: "config/config.yml"   # default; the canonical run for this study uses config/config_transcriptome.yml (pass via --configfile)
 
 # -------------------------------------------------------------
 # Global variables from config

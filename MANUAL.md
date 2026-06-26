@@ -5,9 +5,8 @@ Direct RNA sequencing (DRS, Oxford Nanopore) analysis of the *Arabidopsis thalia
 The workflow covers two parallel axes: the **transcriptome** axis (FLAIR isoforms — the
 epitranscriptomic, primary track) and the **genome** axis (TAIR10 — alternative QC/DE track).
 
-> This manual consolidates `METHODS_TOOLS.md`, `RUN_CLI.md`, `COMANDOS_SNAKEMAKE.md`,
-> `FIGS_PAPER/INVENTARIO_PROVENANCE.md` and `POSTER/FIGURAS_4_BLUEPRINT.md`. All tool
-> settings, filters and file paths are taken verbatim from those sources.
+> This manual consolidates `METHODS_TOOLS.md` and `RUN_CLI.md`. All tool settings, filters
+> and file paths are taken verbatim from those sources.
 
 ---
 
@@ -27,16 +26,15 @@ factor under study; Antimycin A triggers the mitochondrial retrograde response.
 
 | Item | Location |
 |------|----------|
-| Compute server (EpiPower) | `ssh usuario2@156.35.42.17` (UniOvi VPN required) |
-| Pipeline repo | `~/kchopore-anac017-drs` |
-| Working directory | `/media/usuario2/ssd4TB1/kchopore_arabidopsis/run_transcriptome` |
-| Conda env (pipeline) | `kchopore` (via `~/miniconda/etc/profile.d/conda.sh`) |
+| Compute server | `ssh <server>` (UniOvi VPN required) |
+| Pipeline repo | `<conda-prefix>/kchopore-anac017-drs` |
+| Working directory | `<data-dir>/run_transcriptome` |
+| Conda env (pipeline) | `kchopore` (via `<conda-prefix>/etc/profile.d/conda.sh`) |
 | Conda env (figures) | `viz` |
-| System R | `/usr/bin/Rscript` (has DESeq2 / ggplot2 / patchwork / ragg) |
-| NAS data (read-only) | `~/nas/Comun`, `~/nas/HTData` (rclone mounts) |
-| Figure code | `FIGS_PAPER/code/` |
-| Figure tidy data | `FIGS_PAPER/data/` |
-| Poster assets | `POSTER/` |
+| System R | `Rscript` (has DESeq2 / ggplot2 / patchwork / ragg) |
+| NAS data (read-only) | `<data-dir>/nas/Comun`, `<data-dir>/nas/HTData` (rclone mounts) |
+| Final figures | `docs/figures/` |
+| Result tables | `docs/tables/` |
 
 **The single editable file is `config/config_transcriptome.yml`.** The `Snakefile` rules
 are never touched for a new run.
@@ -51,18 +49,18 @@ Docker image (FAIR path).
 ### Conda (native)
 
 ```bash
-ssh usuario2@156.35.42.17
-source ~/miniconda/etc/profile.d/conda.sh
+ssh <server>
+source <conda-prefix>/etc/profile.d/conda.sh
 conda activate kchopore
 ```
 
 ### Docker (reproducible, FAIR)
 
 ```bash
-cd ~/kchopore-anac017-drs
+cd <conda-prefix>/kchopore-anac017-drs
 docker build -t kchopore-anac017-drs:latest .          # image already built
 docker run --rm \
-  -v $PWD:/workspace -v ~/nas:/nas -w /workspace \
+  -v $PWD:/workspace -v <data-dir>/nas:/nas -w /workspace \
   kchopore-anac017-drs:latest \
   snakemake --configfile config/config_transcriptome.yml \
             --cores 12 --rerun-triggers mtime --keep-going
@@ -80,16 +78,16 @@ invocation runs inside or outside Docker.
 Data live on the NAS and are read **in place** — no copying.
 
 ```bash
-~/bin/rclone mount nas:Comun          ~/nas/Comun  --read-only --vfs-cache-mode off --dir-cache-time 720h --daemon
-~/bin/rclone mount nas:HTData_and_DBs ~/nas/HTData --read-only --vfs-cache-mode off --dir-cache-time 720h --daemon
-ls ~/nas/Comun/Chus   # sanity check
+rclone mount nas:Comun          <data-dir>/nas/Comun  --read-only --vfs-cache-mode off --dir-cache-time 720h --daemon
+rclone mount nas:HTData_and_DBs <data-dir>/nas/HTData --read-only --vfs-cache-mode off --dir-cache-time 720h --daemon
+ls <data-dir>/nas/Comun/Chus   # sanity check
 ```
 
 ### Prepare the workdir
 
 ```bash
 conda activate kchopore
-python3 ~/setup_transcriptome.py   # builds run_transcriptome with fastq/summaries/BAMs/ref symlinked
+python3 scripts/setup_transcriptome.py   # builds run_transcriptome with fastq/summaries/BAMs/ref symlinked
 ```
 
 ### The config file
@@ -122,7 +120,7 @@ Always keep `--rerun-triggers mtime` so already-computed heavy steps are reused,
 Run everything from the workdir:
 
 ```bash
-cd /media/usuario2/ssd4TB1/kchopore_arabidopsis/run_transcriptome
+cd <data-dir>/run_transcriptome
 ```
 
 Dry-run first (always):
@@ -182,31 +180,31 @@ snakemake --snakefile Snakefile --configfile config/config_transcriptome.yml \
 ### 3.2 Differential expression (DESeq2, 2×2)
 
 ```bash
-bash ~/run_deseq2.sh
-# idxstats of the 12 BAMs -> counts -> DESeq2 -> ~/deseq2/out (PCA, volcanos, heatmap)
+Rscript scripts/run_deseq2.R
+# idxstats of the 12 BAMs -> counts -> DESeq2 -> out (PCA, volcanoes, heatmap)
 ```
 
 ### 3.3 GO / KEGG enrichment (g:Profiler)
 
 ```bash
 conda activate kchopore
-Rscript ~/go_enrich.R      # -> ~/deseq2/go
+Rscript scripts/go_enrich.R      # -> go
 ```
 
-### 3.4 m6A figures (ELIGOS2 already run by Chus)
+### 3.4 m6A figures (ELIGOS2 already run upstream)
 
 ```bash
-conda run -n viz python ~/eligos_m6a_figures_v2.py
-# -> ~/eligos_figs_v2 (motif, normalised rate, volcano, heatmap)
-# baseExt0 files already extracted in ~/eligos_results
+conda run -n viz python scripts/eligos_m6a_figures_v2.py
+# -> eligos_figs_v2 (motif, normalised rate, volcano, heatmap)
+# baseExt0 files already extracted in eligos_results
 ```
 
 ### 3.5 m6anet (orthogonal validation, subset by disk space)
 
 ```bash
 # copy one eventalign locally and process with a local FIFO (faster than SMB):
-cp "~/nas/Comun/Chus/Chus_DRS_Nanopolish_eventalign_m6Anet_NO BORRAR/anac017-1_C_R3_eventalign.txt.gz" /tmp/
-bash ~/m6anet_stream.sh anac017-1_C_R3   # (adjust to read from /tmp)
+cp "<data-dir>/nas/Comun/Chus/Chus_DRS_Nanopolish_eventalign_m6Anet_NO BORRAR/anac017-1_C_R3_eventalign.txt.gz" /tmp/
+bash scripts/m6anet_stream.sh anac017-1_C_R3   # (adjust to read from /tmp)
 ```
 
 ---
@@ -238,7 +236,7 @@ All settings are verbatim from `METHODS_TOOLS.md`. The transcriptome axis is the
 
 - **Candidate m6A site:** `ref==A` & `pval<0.05` & `oddR<1` & `ESB_ctrl>ESB_test` (the sample
   has more base-error than the writer-mutant → loses m6A when the writer is removed).
-- **Robust consensus:** a site is m6A in a condition if it holds in **≥3 of 5** writer mutants.
+- **Consensus rule (≥3/5 writers):** a site is m6A in a condition if it holds in **≥3 of 5** writer mutants.
 - **Cross-condition normalisation:** **rate = sites / 1,000 A tested** (corrects for depth;
   important because WT_C had lower coverage).
 
@@ -256,72 +254,36 @@ All settings are verbatim from `METHODS_TOOLS.md`. The transcriptome axis is the
 
 ---
 
-## 5. Figures and tidy data
+## 5. Figures and tables
 
-Figure code lives in `FIGS_PAPER/code/`; tidy data in `FIGS_PAPER/data/` unless noted.
-Final poster figures: rate = **1a lollipop**, AA/ANAC017 = **2a stacked**. The whole
-biology scenario (Scenario B) is in R; the RRACH motif is in R too.
+Final figures are in `docs/figures/` (PNG, most with a matching PDF). The result tables that
+back them are in `docs/tables/`. The composite paper figures (`fig1`–`fig5`) assemble the
+single-panel figures listed below.
 
-### How to re-run the figure scripts
+### Figure provenance
 
-| Script | Reads | Produces |
-|--------|-------|----------|
-| `code/deseq2_paper.R` | `data/transcript_counts_matrix.csv` | re-runs DESeq2 (vst/PCA), PNG+PDF; PCA legend outside |
-| `code/m6a_figures.R` (run from `FIGS_PAPER/m6a/`) | `m6a_summary.csv`, `m6A_master_table.csv` | 1a lollipop (FINAL), 1c dotplot, 2a stacked (FINAL), 2b lollipop, 2c waffle, fig5 heatmap. Env vars `M6A_SUMMARY/M6A_MASTER/M6A_OUT` |
-| `code/motif_figures.R` (run from `FIGS_PAPER/m6a/`) | `m6a_motif_kmers.csv` | ggseqlogo 2×2 |
-| `code/go_figures.R` | `~/deseq2/go/*_GO.csv` (server) | 3 dotplots (interaction = dotplot, not barplot) |
-| `code/track_figures.R` | `eligos_bedgraph/*.A.ESB_ctrl.bdg` | QC violin + AOX1a (Chr3:7906521-7908746) + CYP81D8 (Chr4:17569740-17571743) |
-| `code/deseq2_paper.R` → `F0_dispersion` | `data/transcript_counts_matrix.csv` | dispersion (model health) |
-| `code/panel_nanoplot.py` | 12-library NanoPlot images | PIL 4×3 montage; var `PLOT` for another view |
-| `eligos_m6a_paper.py` | ELIGOS2 `*_baseExt0.txt` (server) | m6A source + dumps CSVs |
-| `bdg_trackplots.py` | `eligos_bedgraph/*.bdg` | Python tracks |
-| `go_paper.py`, `fig_integration.py` | see below | GO / integration panels |
+Each figure maps to its file in `docs/figures/` and the table in `docs/tables/` it is built
+from.
 
-### Figure → script → data (provenance)
+| Figure | File | Table | Content |
+|--------|------|-------|---------|
+| PCA | `docs/figures/pca.png` | `docs/tables/tidy_de_genotype.csv` | transcript-level PCA (PC1 / PC2) of the 12 libraries |
+| Volcanoes | `docs/figures/volcanoes.png` | `docs/tables/tidy_de_AA_in_WT.csv`, `docs/tables/tidy_de_genotype.csv`, `docs/tables/tidy_de_interaction.csv` | AA-in-WT / genotype / interaction contrasts |
+| Heatmap top 40 | `docs/figures/heatmap-top40.png` | `docs/tables/tidy_de_interaction.csv` | z-score vst heatmap of the top 40 DE transcripts |
+| Differential expression (composite) | `docs/figures/fig2-differential-expression.png` | `docs/tables/tidy_de_AA_in_WT.csv`, `docs/tables/tidy_de_genotype.csv`, `docs/tables/tidy_de_interaction.csv` | PCA + volcanoes + heatmap assembled |
+| m6A rate (normalised) | `docs/figures/m6a-rate-normalised.png` | `docs/tables/m6a_summary.csv` | m6A sites per 1,000 A tested, per condition |
+| 86% ANAC017-dependent m6A | `docs/figures/m6a-86pct-anac017-dependent.png` | `docs/tables/m6a_summary.csv` | stacked bars: AA-gained m6A that needs ANAC017 |
+| m6A and ANAC017 (composite) | `docs/figures/fig3-m6a-anac017.png` | `docs/tables/m6a_summary.csv`, `docs/tables/m6a_motif_kmers.csv` | rate + motif + ANAC017 dependence assembled |
+| m6A identity / metagene | `docs/figures/fig4-m6a-identity-metagene.png` | `docs/tables/taskA_mta_identity.csv`, `docs/tables/taskB_mapping_coverage.csv` | m6A identity (mta) and mapping coverage |
+| AOX1a track | `docs/figures/aox1a-track.png` | — | ESB track over AOX1a (Chr3:7,906,521-7,908,746), 4 conditions |
+| GO compareCluster | `docs/figures/go-compareCluster.png` | `docs/tables/compareCluster_GO_BP_interaction.csv` | GO:BP terms across contrasts |
+| Function / GO (composite) | `docs/figures/fig5-function-go.png` | `docs/tables/ora_GO_BP_interaction.csv`, `docs/tables/kegg_interaction.csv` | GO / KEGG enrichment of the interaction set |
+| QC + design (composite) | `docs/figures/fig1-qc-design.png` | — | NanoComp QC summary and the 2x2 design |
 
-#### Scenario B — anac017 biology
-
-| Figure | Script | Data | Lang | Type / status |
-|--------|--------|------|------|---------------|
-| `deseq2/F1_PCA` | `deseq2_paper.R` (L147-164) | `data/transcript_counts_matrix.csv` | R | scatter · legend outside ✅ |
-| `deseq2/F2_volcano_interaction` | `deseq2_paper.R` (L169-208) | idem | R | volcano (19 ANAC017-dependent tx) ✅ |
-| `deseq2/F2_volcano_panel` | `deseq2_paper.R` (L206-208) | idem | R | panel (A) AA (B) genotype (C) interaction · polish |
-| `deseq2/F3_MA_panel` | `deseq2_paper.R` (L237-238) | idem | R | panel · polish |
-| `deseq2/F4_heatmap_top40` | `deseq2_paper.R` (L243-281) | idem | R | heatmap (z-score vst) ✅ |
-| `m6a/fig1_motif_rrach` | `eligos_m6a_paper.py` | ELIGOS2 `*_baseExt0.txt` → `m6a/m6A_master_table.csv` | Py | logo ✅ |
-| `m6a/fig2_rate_normalised` | `eligos_m6a_paper.py` | idem | Py | barplot (sites per 1,000 A) · improve |
-| `m6a/fig3_upset_overlap` | `eligos_m6a_paper.py` | idem | Py | upset · polish |
-| `m6a/fig6_aa_anac017` | `eligos_m6a_paper.py` | idem | Py | barplot (~86% AA-gained need ANAC017) · improve |
-| `bdg_tracks/track_AT3G22370` | `bdg_trackplots.py` | `eligos_bedgraph/*.bdg` | Py | track AOX1a, 4 conditions ✅ |
-| `bdg_tracks/track_AT4G37370` | `bdg_trackplots.py` | idem | Py | track CYP81D8, 4 conditions ✅ |
-| `go/interaction_ANAC017dep_dotplot` | `go_paper.py` | `RESULTADOS/03_GO/interaction_ANAC017dep_GO.csv` | Py | dotplot (stress & hypoxia) ✅ — prefer over barplot |
-| `go/interaction_ANAC017dep_barplot` | `go_paper.py` | idem | Py | barplot · discard, use dotplot |
-| `integration/fig_integration_expr_m6a` | `fig_integration.py` | `RESULTADOS/02_DESeq2/D5_volcano_interaction.csv` + `m6a/m6A_master_table.csv` | Py | panel · ⚠️ descriptive only, not convergence |
-
-#### Scenario A — K-CHOPORE works
-
-| Figure | Script | Data | Lang | Action |
-|--------|--------|------|------|--------|
-| Hero architecture | (prompt v3, sci-diagram) | — | — | generate |
-| QC `RESULTADOS/01_QC/nanocomp` | NanoComp (pipeline) | BAMs / fastq | — | pick 1 ✅ |
-| QR repo | `POSTER/make_qr.py` | URL `github.com/biopelayo/...` | Py | ✅ |
-
-### Poster figure blueprint (tidyplots, 4 figures)
-
-**Global style.** Okabe-Ito condition palette: `WT_C=#0072B2 · WT_AA=#56B4E9 ·
-anac017-1_C=#D55E00 · anac017-1_AA=#E69F00`. Significant `#BB5566` / non-sig `#BBBBBB`.
-GO sources `GO:BP=#3B6CB7 · GO:MF=#2E8B6B · GO:CC=#C9892B · KEGG=#8E5AA6`. White background,
-Arial sans-serif, top/right spines off, faint grid `#E8E8E8`. Export PNG 300 dpi + PDF with
-`save_plot(..., bg="white")`. Panel labels A/B/C bold 11 pt, top-left; axis captions ≤6 words.
-
-| Fig | Panels (tidy data) | Status |
-|-----|--------------------|--------|
-| **F1 · DRS quality + design** | A QC `qc_nanostats_summary.csv` (scatter or NanoComp image — NanoPlot dumps no per-read data) · B PCA `tidy_pca_coords.csv` (PC1 41%, PC2 30%) · C dispersion `tidy_dispersion.csv` | ✅ |
-| **F2 · Differential expression** | A/B/C volcanos `tidy_de_{AA_in_WT,genotype,interaction}.csv` (151 / 93 / 19) · MA from same CSVs · D heatmap `tidy_heatmap_top40_long.csv` | ✅ |
-| **F3 · m6A detection** | A ESB violin `eligos_bedgraph/*.A.ESB_ctrl.bdg` (pivot long) · B motif `m6a_motif_kmers.csv` (ggseqlogo) · C per-condition m6A volcano `m6a_volcano_percond.csv` | ✅ |
-| **F4 · ANAC017-dependent m6A + function** | A 86% stacked bars `data/m6a_summary.csv` (aa_gain_wt=7202, anac017_dep=6225) · B track AOX1a (`*.bdg` subset Chr3:7,906,221-7,909,046) · C GO dotplot `RESULTADOS/03_GO/interaction_ANAC017dep_GO.csv` | ✅ |
-
-All 12 panels have turnkey tidy data in `FIGS_PAPER/data/`.
+The RRACH motif comes from `docs/tables/m6a_motif_kmers.csv`. The DE contrasts hold 151
+(AA-in-WT) / 93 (genotype) / 19 (interaction) significant transcripts at `padj<0.05 &
+|LFC|>1`. The GO / KEGG enrichment tables (`ora_*`, `gseGO_*`, `kegg_*`, `compareCluster_*`)
+are split by contrast (`AA_in_WT`, `genotype`, `interaction`).
 
 ---
 
@@ -329,29 +291,23 @@ All 12 panels have turnkey tidy data in `FIGS_PAPER/data/`.
 
 ### NAS access
 
-- Read-only rclone mounts, no sudo (see §2): `nas:Comun` → `~/nas/Comun`,
-  `nas:HTData_and_DBs` → `~/nas/HTData`. Data are read in place; nothing is copied.
-- Source DRS data and Chus's precomputed ELIGOS2 / eventalign products live under
-  `~/nas/Comun/Chus`.
+- Read-only rclone mounts, no sudo (see §2): `nas:Comun` → `<data-dir>/nas/Comun`,
+  `nas:HTData_and_DBs` → `<data-dir>/nas/HTData`. Data are read in place; nothing is copied.
+- Source DRS data and the precomputed ELIGOS2 / eventalign products live under
+  `<data-dir>/nas/Comun`.
 
 ### Provenance
 
-- Every poster figure is traced to its **script** and its **data file** in
-  `FIGS_PAPER/INVENTARIO_PROVENANCE.md` (consolidated in §5). Figure code in
-  `FIGS_PAPER/code/`, data in `FIGS_PAPER/data/`.
+- Every figure is traced to its file in `docs/figures/` and the table in `docs/tables/` it is
+  built from (see §5).
 - The pipeline is config-driven: a run is fully described by
   `config/config_transcriptome.yml` plus the immutable `Snakefile`.
-
-### GitHub + QR
-
-- Repo mirrored at `github.com/biopelayo/...`; the poster QR is generated by
-  `POSTER/make_qr.py` and links to the repo (Scenario A "Reproducible" panel).
 
 ### Versions and determinism
 
 - Pinned tool versions: **Guppy 6.2.1** (basecalling), ELIGOS2, m6anet, DESeq2,
-  gprofiler2; the full toolchain is captured in the Docker image
-  `kchopore-anac017-drs:latest` for FAIR re-execution.
+  gprofiler2; the full toolchain is pinned in the Docker image
+  `kchopore-anac017-drs:latest`.
 - **m6anet inference:** `--num_iterations 1000` (fixed iteration count).
 - **m6anet dataprep:** `--n_processes 1` over a FIFO (deterministic, low-memory).
 - **ELIGOS2:** fixed thresholds `--pval 0.05 --oddR 5 --esb 0.2`; consensus ≥3/5 writer mutants.
@@ -377,14 +333,14 @@ All 12 panels have turnkey tidy data in `FIGS_PAPER/data/`.
 | `*_baseExt0/1/2.txt` | ELIGOS2 | per-base error tables (extension windows) |
 | `.A.filtered` | ELIGOS2 | A-site error calls filtered to `pval<0.05` |
 | `*.A.ESB_ctrl.bdg` | ELIGOS2 | BedGraph of ESB at A sites (IGV / tracks) |
-| `m6A_master_table.csv` | `eligos_m6a_paper.py` | consolidated m6A calls (figure source) |
-| `m6a_volcano_percond.csv` | `eligos_m6a_paper.py` | per-condition A-site volcano (log2 oddR, −log10 p, hit) |
+| `m6A_master_table.csv` | `scripts/eligos_m6a_figures_v2.py` | consolidated m6A calls (figure source) |
+| `m6a_volcano_percond.csv` | `scripts/eligos_m6a_figures_v2.py` | per-condition A-site volcano (log2 oddR, −log10 p, hit) |
 | `data.site_proba.csv` | m6anet | per-site m6A probability (signal-based) |
 | `diffmod.table` | xpore | differential m6A (pending) |
-| DESeq2 CSV per contrast | `run_deseq2.sh` | transcript-level DE (AA, genotype, interaction) |
+| DESeq2 CSV per contrast | `scripts/run_deseq2.R` | transcript-level DE (AA, genotype, interaction) |
 | `*_GO.csv` | g:Profiler | GO:BP/MF/CC + KEGG enrichment of DE genes |
 | MultiQC HTML | MultiQC | aggregate QC report |
-| tidy CSVs in `FIGS_PAPER/data/` | figure scripts | per-panel plotting data (turnkey) |
+| result CSVs in `docs/tables/` | DESeq2 / GO / m6A steps | per-figure plotting and result tables |
 
 ---
 

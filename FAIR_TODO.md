@@ -4,7 +4,7 @@ Plan de remediación FAIR. No ejecuta builds: lista cada cambio con la línea ex
 
 > **Actualización 2026-06-25 — versiones reales capturadas del servidor.**
 > Se capturaron las versiones exactas de los entornos conda del servidor de análisis
-> (`usuario2@156.35.42.17`) y se guardaron en `envs/frozen/` (kchopore, m6anet, xpore,
+> (`<server>`) y se guardaron en `envs/frozen/` (kchopore, m6anet, xpore,
 > viz, pycoqc_env). El pipeline usa un entorno **primario `kchopore`** (Snakemake, mapeo,
 > QC, isoformas, DESeq2/GO) más entornos aislados para `m6anet`, `xpore`, `pycoqc_env` y
 > figuras (`viz`).
@@ -109,7 +109,7 @@ Mismas versiones objetivo (notas originales, ya aplicadas con versiones reales):
 
 - **eligos2: `[HECHO]`** fijado al SHA real del servidor
   `b205a5cec34cd2974e5ddae78f7fcf7beb49d9c8` (`git describe` → `v2.1.0-8-gb205a5c`,
-  commit 2024-01-29), que es el que usa el análisis (`/home/usuario2/eligos2`).
+  commit 2024-01-29), que es el que usa el análisis (`<conda-prefix>/eligos2`).
 - **nanopolish: `[PARCIAL / PENDIENTE-PELAYO]`** se añadió `git checkout v0.14.0` +
   `submodule update`, pero NO se observó binario de nanopolish en ningún entorno conda del
   servidor del que leer la versión real (corre dentro del Docker). v0.14.0 es el tag estable

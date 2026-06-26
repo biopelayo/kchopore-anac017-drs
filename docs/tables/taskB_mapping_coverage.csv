@@ -1,0 +1,6 @@
+set,n_consensus,n_mapped,pct_mapped
+WT_C,10007,4111,41.1
+WT_AA,15800,6702,42.4
+anac017-1_C,16520,7101,43.0
+anac017-1_AA,15014,6406,42.7
+AA-gained-in-WT,7202,3150,43.7

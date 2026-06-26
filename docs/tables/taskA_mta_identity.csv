@@ -1,0 +1,7 @@
+set,n_sites,n_mta_supported,pct_mta_supported
+AA-gained-in-WT,7202,6962,96.67
+ANAC017-dependent,6225,6021,96.72
+consensus:WT_C,10007,9712,97.05
+consensus:WT_AA,15800,15467,97.89
+consensus:anac017-1_C,16520,16154,97.78
+consensus:anac017-1_AA,15014,14743,98.2

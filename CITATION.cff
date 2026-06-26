@@ -21,7 +21,7 @@ authors:
     given-names: "Luis"
     affiliation: "Universidad de Oviedo"
 license: MIT
-repository-code: "https://github.com/pelayovic/kchopore-anac017-drs"  # TODO: confirm canonical repo URL
+repository-code: "https://github.com/biopelayo/kchopore-anac017-drs"
 # TODO (Pelayo): set `version` and `date-released` once a tagged release is cut.
 # TODO (Pelayo): add `doi` (Zenodo) on archival.
 # version: 0.0.0

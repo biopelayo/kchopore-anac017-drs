@@ -1,58 +1,133 @@
-# K-CHOPORE · Runbook CLI (corrida manual end-to-end)
+# K-CHOPORE anac017 DRS runbook
 
-Servidor: `ssh usuario2@156.35.42.17` (VPN UniOvi activa). Repo: `~/kchopore-anac017-drs`.
+End-to-end manual run on the compute server. Connect with `ssh <server>` (UniOvi VPN
+required). The pipeline repo lives at `<conda-prefix>/kchopore-anac017-drs`. The working
+directory for a run is `<data-dir>/run_transcriptome`.
 
-## 0. Montar el NAS (datos, read-only, sin sudo)
+The only file you edit for a new run is `config/config_transcriptome.yml`: `samples`,
+`conditions`, the `input_files` paths, and the `run_*` flags that switch modules on or off.
+The `Snakefile` rules are never touched.
+
+## 0. Mount the NAS (read-only, no sudo)
+
+Data live on the NAS and are read in place; nothing is copied.
+
 ```bash
-~/bin/rclone mount nas:Comun ~/nas/Comun --read-only --vfs-cache-mode off --dir-cache-time 720h --daemon
-~/bin/rclone mount nas:HTData_and_DBs ~/nas/HTData --read-only --vfs-cache-mode off --dir-cache-time 720h --daemon
-ls ~/nas/Comun/Chus   # comprobar
+rclone mount nas:Comun          <data-dir>/nas/Comun  --read-only --vfs-cache-mode off --dir-cache-time 720h --daemon
+rclone mount nas:HTData_and_DBs <data-dir>/nas/HTData --read-only --vfs-cache-mode off --dir-cache-time 720h --daemon
+ls <data-dir>/nas/Comun/Chus   # sanity check
 ```
 
-## 1. Preparar el workdir (datos del NAS in place)
+## 1. Prepare the working directory
+
 ```bash
-source ~/miniconda/etc/profile.d/conda.sh && conda activate kchopore
-python3 ~/setup_transcriptome.py          # crea run_transcriptome con fastq/summaries/BAMs/ref enlazados
+source <conda-prefix>/etc/profile.d/conda.sh
+conda activate kchopore
+python3 scripts/setup_transcriptome.py   # builds run_transcriptome with fastq/summaries/BAMs/ref symlinked
 ```
 
-## 2. Pipeline QC + alineamiento (Snakemake — solo rehace lo que falta)
+## 2. QC and alignment (Snakemake)
+
+Run everything from the working directory:
+
 ```bash
-cd /media/usuario2/ssd4TB1/kchopore_arabidopsis/run_transcriptome
-snakemake -n --configfile config/config_transcriptome.yml --rerun-triggers mtime   # DRY-RUN (ver qué hará)
-snakemake    --configfile config/config_transcriptome.yml --cores 12 --rerun-triggers mtime --keep-going
+cd <data-dir>/run_transcriptome
+```
+
+Dry-run first to see the plan. `Nothing to be done` means everything is up to date (reuse, no
+recompute). Always keep `--rerun-triggers mtime` so finished heavy steps are reused.
+
+```bash
+snakemake -n \
+  --snakefile Snakefile \
+  --configfile config/config_transcriptome.yml \
+  --rerun-triggers mtime
+```
+
+If the plan looks right, drop `-n` and launch:
+
+```bash
+snakemake \
+  --snakefile Snakefile \
+  --configfile config/config_transcriptome.yml \
+  --cores 12 \
+  --rerun-triggers mtime \
+  --keep-going
 # -> results/{nanoplot,nanocomp,quality_analysis,samtools_stats,multiqc}
 ```
 
-## 3. Expresión diferencial (DESeq2 2×2)
+Force one rule to watch it run:
+
 ```bash
-bash ~/run_deseq2.sh      # idxstats de los 12 BAMs -> counts -> DESeq2 -> ~/deseq2/out (PCA, volcanos, heatmap)
+snakemake --snakefile Snakefile --configfile config/config_transcriptome.yml \
+  --cores 4 --rerun-triggers mtime \
+  --forcerun multiqc results/multiqc/multiqc_report.html
 ```
 
-## 4. GO/KEGG (g:Profiler)
+Request one specific target (Snakemake does only what is needed to produce it):
+
 ```bash
-conda activate kchopore && Rscript ~/go_enrich.R     # -> ~/deseq2/go
+snakemake --snakefile Snakefile --configfile config/config_transcriptome.yml \
+  --cores 4 --rerun-triggers mtime \
+  results/nanoplot/WT_C_R1/NanoStats.txt
 ```
 
-## 5. m6A (ELIGOS2 ya hecho por Chus) — figuras
+### Snakemake flag reference
+
+| Flag | What it does |
+|------|--------------|
+| `-n` | dry-run: shows what it would do, changes nothing |
+| `--configfile` | the file that controls everything (samples, modules, paths) |
+| `--rerun-triggers mtime` | decide what to redo by file date only, so finished heavy steps are not recomputed |
+| `--cores N` / `-j N` | cores in parallel (40 available; 12 to 16 is plenty) |
+| `--keep-going` | if a rule fails, continue with the rest |
+| `--forcerun <rule>` | re-run a rule even if already done |
+| `-p` / `--printshellcmds` | print the real shell command of each step |
+| `-r` / `--reason` | explain why each rule runs |
+| `--unlock` | unlock the directory after an interruption, then relaunch |
+| `--dag \| dot -Tpng > dag.png` | draw the dependency graph |
+
+## 3. Differential expression (DESeq2, 2x2)
+
 ```bash
-conda run -n viz python ~/eligos_m6a_figures_v2.py   # -> ~/eligos_figs_v2 (motivo, normalizado, volcano, heatmap)
-# (los baseExt0 ya extraidos en ~/eligos_results)
+Rscript scripts/run_deseq2.R
+# idxstats of the 12 BAMs -> counts -> DESeq2 -> out (PCA, volcanoes, heatmap)
 ```
 
-## 6. m6anet (validación ortogonal, subconjunto por espacio)
+## 4. GO / KEGG enrichment (g:Profiler)
+
 ```bash
-# bajar 1 eventalign a local y procesar con FIFO local (mas rapido que SMB):
-cp "~/nas/Comun/Chus/Chus_DRS_Nanopolish_eventalign_m6Anet_NO BORRAR/anac017-1_C_R3_eventalign.txt.gz" /tmp/
-bash ~/m6anet_stream.sh anac017-1_C_R3   # (ajustar para leer de /tmp)
+conda activate kchopore
+Rscript scripts/go_enrich.R      # -> go
 ```
 
-## Vía Docker (reproducible, FAIR)
+## 5. m6A figures (ELIGOS2 already run upstream)
+
 ```bash
-cd ~/kchopore-anac017-drs
-docker build -t kchopore-anac017-drs:latest .          # ya construida
-docker run --rm -v $PWD:/workspace -v ~/nas:/nas -w /workspace kchopore-anac017-drs:latest \
-  snakemake --configfile config/config_transcriptome.yml --cores 12 --rerun-triggers mtime --keep-going
+conda run -n viz python scripts/eligos_m6a_figures_v2.py
+# -> eligos_figs_v2 (motif, normalised rate, volcano, heatmap)
+# baseExt0 files already extracted in eligos_results
 ```
 
-## Qué editar para una corrida nueva
-Solo **`config/config_transcriptome.yml`**: `samples`, `conditions`, rutas en `input_files`, y los flags `run_*` (qué módulos correr). Las reglas no se tocan.
+## 6. m6anet (orthogonal validation, subset by disk space)
+
+```bash
+# copy one eventalign locally and process through a local FIFO (faster than SMB):
+cp "<data-dir>/nas/Comun/Chus/Chus_DRS_Nanopolish_eventalign_m6Anet_NO BORRAR/anac017-1_C_R3_eventalign.txt.gz" /tmp/
+bash scripts/m6anet_stream.sh anac017-1_C_R3   # (adjust to read from /tmp)
+```
+
+## Docker (reproducible)
+
+The container mounts the repo at `/workspace` and the NAS at `/nas`, so the same Snakemake
+invocation runs inside or outside Docker.
+
+```bash
+cd <conda-prefix>/kchopore-anac017-drs
+docker build -t kchopore-anac017-drs:latest .          # image already built
+docker run --rm \
+  -v $PWD:/workspace -v <data-dir>/nas:/nas -w /workspace \
+  kchopore-anac017-drs:latest \
+  snakemake --configfile config/config_transcriptome.yml \
+            --cores 12 --rerun-triggers mtime --keep-going
+```
